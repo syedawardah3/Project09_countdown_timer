@@ -1,38 +1,59 @@
 #! /usr/bin/env node
-import { differenceInSeconds } from "date-fns";
 import inquirer from "inquirer";
-// responces liya hai user se 
-const res = await inquirer.prompt({
-    type: "number",
-    name: "userInput",
-    message: "please enter the amount of second",
-    validate: (input) => {
-        if (isNaN(input)) {
-            return "please enter valid number";
-        }
-        else if (input > 60) {
-            return "seconds must be in 60";
-        }
-        else {
-            return true;
+import { differenceInSeconds } from "date-fns";
+import chalk from "chalk";
+console.log(chalk.bold.italic.underline.redBright("\t\t ************************WELCOME TO WARDAH SHAH COUNTDOWN TIMER************************"));
+const res = await inquirer.prompt([
+    {
+        name: "minutes",
+        type: "number",
+        message: chalk.magentaBright.bold("Please enter the number of minutes:"),
+        validate: (input) => {
+            if (isNaN(input)) {
+                return chalk.redBright("Please enter a valid number");
+            }
+            else if (input < 0) {
+                return chalk.redBright("Please enter a positive number");
+            }
+            else {
+                return true;
+            }
+        },
+    },
+    {
+        type: "number",
+        name: "seconds",
+        message: chalk.magentaBright.bold("Please Enter the number of Seconds: "),
+        validate: (input) => {
+            if (isNaN(input)) {
+                return chalk.redBright("Please Enter Valid Number");
+            }
+            else if (input > 60) {
+                return chalk.redBright("Seconds must be 60");
+            }
+            else {
+                return true;
+            }
         }
     }
-});
-let input = res.userInput;
-function startTime(value) {
-    const intTime = new Date().setSeconds(new Date().getSeconds() + value);
-    const IntervalTime = new Date(intTime);
-    setInterval(() => {
+]);
+let input1 = res.minutes;
+let input2 = res.seconds;
+// Total seconds for the timer
+const totalSeconds = (input1 * 60) + input2;
+function startTime(val) {
+    const initialTime = new Date().setSeconds(new Date().getSeconds() + val);
+    const intervalTime = new Date(initialTime);
+    setInterval((() => {
         const currentTime = new Date();
-        const timeDifference = differenceInSeconds(IntervalTime, currentTime);
+        const timeDifference = differenceInSeconds(intervalTime, currentTime);
         if (timeDifference <= 0) {
-            console.log("timer has expir ed");
+            console.log(chalk.redBright.bold("\t\t *********************Timer has expired***********************"));
             process.exit();
         }
-        const minute = Math.floor((timeDifference % (3600 * 24)) / 3600);
-        const second = Math.floor(timeDifference % 60);
-        console.log(`${minute.toString().padStart(2, "0")}:${second.toString().padStart(2, "0")}`);
-    }, 1000);
+        const minute = Math.floor((timeDifference / 60));
+        const seconds = Math.floor(timeDifference % 60);
+        console.log(chalk.yellowBright.bold(`\t\t${minute.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`));
+    }), 1000);
 }
-startTime(input);
-// console.log(input);
+startTime(totalSeconds);
